@@ -1,0 +1,227 @@
+// Prisma schema aligned to AGENTS.md Section 6
+// Note: Using SQLite for local development. Switch to PostgreSQL for production.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User Schema - AGENTS.md Section 6
+model User {
+  id                String   @id @default(uuid())
+  full_name         String
+  phone             String   // +234XXXXXXXXXX format
+  email             String?
+  state             String   // Nigerian state (e.g. Lagos, Abuja FCT, Rivers)
+  gender            Gender
+  age_group         AgeGroup
+  role              UserRole
+  subscription_id   String?  @unique
+  subscription      Subscription? @relation("UserSubscription")
+  onboarding_stage  OnboardingStage @default(not_started)
+  joined_at         DateTime @default(now())
+  last_active       DateTime @updatedAt
+  consent_given     Boolean  @default(false) // NDPA 2023 - must be true before any data is stored
+
+  volunteer         Volunteer?
+  interactionLogs   InteractionLog[]
+
+  @@map("users")
+}
+
+// Subscription Schema - AGENTS.md Section 6
+model Subscription {
+  id              String   @id @default(uuid())
+  user_id         String?  @unique
+  user            User?     @relation("UserSubscription", fields: [user_id], references: [id])
+  plan            Plan
+  status          SubscriptionStatus
+  amount_paid     Float    // In Nigerian Naira (₦) - SQLite uses Float instead of Decimal
+  billing_cycle   BillingCycle
+  start_date      DateTime
+  end_date        DateTime
+  auto_renew      Boolean  @default(true)
+  payment_ref     String   // Paystack or Flutterwave transaction reference
+  created_at      DateTime @default(now())
+
+  @@map("subscriptions")
+}
+
+// Product / Service Schema - AGENTS.md Section 6
+model ProductService {
+  id           String    @id @default(uuid())
+  name         String
+  category     Category
+  description  String    // Subscriber-gated
+  price        Float     // In Nigerian Naira (₦) - SQLite uses Float instead of Decimal
+  currency     String    @default("NGN") // Never display foreign currency
+  availability Availability
+  access_level AccessLevel
+  media_urls   String    // JSON string for SQLite: '["url1","url2"]'
+  tags         String    // JSON string for SQLite: '["tag1","tag2"]'
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@map("product_services")
+}
+
+// Event Schema - AGENTS.md Section 6
+model Event {
+  id            String      @id @default(uuid())
+  title         String
+  type          EventType
+  description   String      // Subscriber-gated
+  date          DateTime
+  time          DateTime
+  location      String      // Nigerian city and venue name
+  state         String      // Nigerian state
+  capacity      Int?
+  price         Float       // In ₦; 0 if free - SQLite uses Float instead of Decimal
+  access_level  AccessLevel
+  status        EventStatus @default(upcoming)
+  booking_link  String?
+  created_at    DateTime    @default(now())
+
+  @@map("events")
+}
+
+// Volunteer Schema - AGENTS.md Section 6
+model Volunteer {
+  id              String      @id @default(uuid())
+  user_id         String      @unique
+  user            User        @relation(fields: [user_id], references: [id])
+  role            VolunteerRole
+  skills          String      // JSON string for SQLite: '["skill1","skill2"]'
+  availability    AvailabilityType
+  status          VolunteerStatus @default(applied)
+  agreement_signed Boolean   @default(false) // Must be true before status → active
+  onboarded_at    DateTime?
+  created_at      DateTime    @default(now())
+
+  @@map("volunteers")
+}
+
+// Interaction Log Schema - AGENTS.md Section 6
+model InteractionLog {
+  id            String   @id @default(uuid())
+  user_id       String?
+  user          User?    @relation(fields: [user_id], references: [id])
+  session_id    String   // Groups messages within one conversation
+  intent        String   // Detected intent (e.g. discovery, purchase_intent)
+  message       String   // Raw user message
+  response      String   // Slaws response delivered
+  resolved      Boolean  // true = AI resolved; false = escalated
+  escalated_to  String?  // WhatsApp number if escalated
+  response_ms   Int      // Response time in milliseconds
+  created_at    DateTime @default(now())
+
+  @@map("interaction_logs")
+}
+
+// Enums - Aligned to AGENTS.md Section 6
+enum Gender {
+  female
+  male
+  prefer_not_to_say
+}
+
+enum AgeGroup {
+  teen
+  age_20_30
+  age_31_45
+  age_46_60
+  age_61_70
+  age_70_plus
+}
+
+enum UserRole {
+  customer
+  entrepreneur
+  parent
+  teen
+  volunteer
+}
+
+enum OnboardingStage {
+  not_started
+  in_progress
+  complete
+}
+
+enum Plan {
+  free
+  basic
+  premium
+}
+
+enum SubscriptionStatus {
+  active
+  expired
+  cancelled
+  pending
+}
+
+enum BillingCycle {
+  monthly
+  quarterly
+  annually
+}
+
+enum Category {
+  women_store
+  event_service
+  mentorship
+  course
+  consulting
+}
+
+enum Availability {
+  in_stock
+  out_of_stock
+  coming_soon
+}
+
+enum AccessLevel {
+  public
+  subscriber_only
+}
+
+enum EventType {
+  standard
+  VIP
+  professional
+  private
+}
+
+enum EventStatus {
+  upcoming
+  ongoing
+  completed
+  cancelled
+}
+
+enum VolunteerRole {
+  customer_service
+  inventory
+  executive
+  social_media
+  other
+}
+
+enum AvailabilityType {
+  full_time
+  part_time
+  weekends_only
+}
+
+enum VolunteerStatus {
+  applied
+  under_review
+  active
+  inactive
+  rejected
+}

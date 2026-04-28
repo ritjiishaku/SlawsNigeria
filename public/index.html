@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlawsNigeria | Empowering Nigerian Women</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6B21A8;
+            --primary-light: #9333EA;
+            --secondary: #F472B6;
+            --dark: #1E1B4B;
+            --light: #FDFCFE;
+            --glass: rgba(255, 255, 255, 0.1);
+            --shadow: 0 8px 32px 0 rgba(107, 33, 168, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        header {
+            height: 100vh;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--secondary);
+            filter: blur(150px);
+            opacity: 0.2;
+            top: -100px;
+            right: -100px;
+            border-radius: 50%;
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 32px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 32px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary);
+        }
+
+        .hero-content {
+            z-index: 2;
+            max-width: 700px;
+        }
+
+        .hero-content h1 {
+            font-size: 64px;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(244, 114, 182, 0.6);
+        }
+
+        .pillars {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .pillar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .pillar-card {
+            padding: 48px;
+            border-radius: 24px;
+            background: var(--light);
+            border: 1px solid rgba(107, 33, 168, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-10px);
+            background: white;
+            box-shadow: var(--shadow);
+        }
+
+        .pillar-card h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .pricing {
+            padding: 100px 0;
+            background: #f8fafc;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .price-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .price-card.featured {
+            border: 2px solid var(--primary);
+            transform: scale(1.05);
+            box-shadow: var(--shadow);
+        }
+
+        .price-val {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 24px 0;
+            color: var(--dark);
+        }
+
+        footer {
+            padding: 64px 0;
+            background: var(--dark);
+            color: white;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 40px; }
+            .pillar-grid, .price-grid { grid-template-columns: 1fr; }
+            .price-card.featured { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">SLAWS NIGERIA</div>
+                <div class="nav-links">
+                    <a href="#services">Services</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#">Support</a>
+                </div>
+            </nav>
+            <div class="hero-content">
+                <h1>Multi-Dimensional Services for the Nigerian Woman</h1>
+                <p>Discover a ecosystem designed for your growth. From premium events and exclusive shopping to entrepreneurship mentorship—all in one place.</p>
+                <a href="#pricing" class="btn btn-primary">Start Your Journey</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="services" class="pillars">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Three Pillars</h2>
+                <p>Tailored services for every stage of your life and business.</p>
+            </div>
+            <div class="pillar-grid">
+                <div class="pillar-card">
+                    <h3>Event Management</h3>
+                    <p>Experience the gold standard in Nigerian events. From VIP corporate summits to intimate professional workshops.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3>Women's Store</h3>
+                    <p>Curated fashion, accessories, and essentials for the modern woman. Quality that reflects your excellence.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3>Entrepreneur Hub</h3>
+                    <p>Unlock your potential with expert mentorship, comprehensive courses, and strategic consulting.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>Subscription Plans</h2>
+                <p>Nigeria-first pricing for full platform access.</p>
+            </div>
+            <div class="price-grid">
+                <div class="price-card">
+                    <h3>Monthly</h3>
+                    <div class="price-val">₦2,500</div>
+                    <p>Perfect for trying out our full catalogue of services.</p>
+                    <br>
+                    <a href="#" class="btn btn-primary">Subscribe</a>
+                </div>
+                <div class="price-card featured">
+                    <h3>Quarterly</h3>
+                    <div class="price-val">₦6,500</div>
+                    <p>Our most popular plan for consistent growth and access.</p>
+                    <br>
+                    <a href="#" class="btn btn-primary">Subscribe</a>
+                </div>
+                <div class="price-card">
+                    <h3>Annual</h3>
+                    <div class="price-val">₦22,000</div>
+                    <p>Best value. Commit to your long-term success.</p>
+                    <br>
+                    <a href="#" class="btn btn-primary">Subscribe</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 SlawsNigeria. All rights reserved.</p>
+            <p>Empowering Nigerian Women, One Step at a Time.</p>
+        </div>
+    </footer>
+</body>
+</html>
