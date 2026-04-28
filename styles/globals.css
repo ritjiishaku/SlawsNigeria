@@ -1,0 +1,44 @@
+/* globals.css - Mobile-First Design System */
+/* Royal Purple: #6B21A8 | Warm Gold: #D97706 */
+
+:root {
+  --primary: #6B21A8;
+  --primary-light: #8B5CF6;
+  --primary-dark: #4C1D95;
+  --secondary: #D97706;
+  --secondary-light: #F59E0B;
+  --secondary-dark: #B45309;
+  --white: #FFFFFF;
+  --gray-50: #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-500: #6B7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --font-roboto: 'Roboto', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-roboto);
+  color: var(--gray-900);
+  background: var(--white);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Mobile-first responsive */
+@media (min-width: 768px) {
+  /* Tablet and desktop styles */
+}

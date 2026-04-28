@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SlawsNigeria Brand Colors */
+:root {
+  --primary: #6B21A8;
+  --primary-light: #8B5CF6;
+  --primary-dark: #4C1D95;
+  --secondary: #D97706;
+  --secondary-light: #F59E0B;
+  --secondary-dark: #B45309;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+}

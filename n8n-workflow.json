@@ -1,0 +1,64 @@
+{
+  "name": "SlawsNigeria - Welcome Subscriber",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "wati-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Wati Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.body.waId ? 'https://live-mt-server.wati.io/YOUR_PHONE_NUMBER/api/v1/sendSessionMessage?whatsappNumber=' + $json.body.waId : '' }}",
+        "authentication": "genericCustomAuth",
+        "genericAuthType": "header",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WATI_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "Welcome to SlawsNigeria! 🎉\\n\\nYou're now subscribed to daily updates. Reply with:\\n• \\'events\\' for event updates\\n• \\'products\\' for store updates\\n• \\'mentorship\\' for mentorship info\\n\\nReply \\'unsubscribe\\' to stop messages."
+            }
+          ]
+        }
+      },
+      "id": "send-welcome",
+      "name": "Send Welcome Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Wati Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": []
+}

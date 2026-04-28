@@ -1,39 +1,25 @@
 {
   "name": "slawsnigeria",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
-  },
+  "description": "SlawsNigeria MVP - Automation & Growth Engine",
   "scripts": {
-    "build": "prisma generate && tsc",
-    "start": "node dist/api/server.js",
-    "dev": "ts-node -r dotenv/config src/api/server.ts",
-    "test": "jest"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.6.0",
-    "jest": "^30.3.0",
-    "prisma": "^6.19.0",
-    "ts-jest": "^29.4.9",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.0",
-    "axios": "^1.15.2",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "zod": "^4.3.6"
+    "@supabase/supabase-js": "^2.105.1",
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "19.2.14",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^6.0.3"
   }
 }
