@@ -220,10 +220,91 @@
         }
 
         @media (max-width: 768px) {
-            .hero-content h1 { font-size: 40px; }
-            .pillar-grid, .price-grid { grid-template-columns: 1fr; }
-            .price-card.featured { transform: scale(1); }
+            header {
+                height: auto;
+                padding: 120px 0 80px;
+            }
+
+            nav {
+                padding: 20px 0;
+                background: rgba(30, 27, 75, 0.95);
+                backdrop-filter: blur(10px);
+                position: fixed;
+            }
+
+            .nav-links {
+                display: none; /* Hidden by default on mobile */
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--dark);
+                flex-direction: column;
+                padding: 20px;
+                border-top: 1px solid var(--glass);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links a {
+                margin: 10px 0;
+                font-size: 18px;
+            }
+
+            .menu-toggle {
+                display: block !important;
+                cursor: pointer;
+            }
+
+            .hero-content h1 { 
+                font-size: 36px; 
+                text-align: center;
+            }
+            
+            .hero-content p {
+                font-size: 18px;
+                text-align: center;
+            }
+
+            .hero-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .pillar-grid, .price-grid { 
+                grid-template-columns: 1fr; 
+                gap: 20px;
+            }
+
+            .pillar-card {
+                padding: 30px;
+            }
+
+            .price-card.featured { 
+                transform: scale(1); 
+                margin: 20px 0;
+            }
+
+            .section-title {
+                margin-bottom: 40px;
+            }
         }
+
+        /* Micro-animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
@@ -231,16 +312,23 @@
         <div class="container">
             <nav>
                 <div class="logo">SLAWS NIGERIA</div>
+                <div class="menu-toggle" style="display: none;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </div>
                 <div class="nav-links">
                     <a href="#services">Services</a>
                     <a href="#pricing">Pricing</a>
                     <a href="#">Support</a>
                 </div>
             </nav>
-            <div class="hero-content">
+            <div class="hero-content animate">
                 <h1>Multi-Dimensional Services for the Nigerian Woman</h1>
-                <p>Discover a ecosystem designed for your growth. From premium events and exclusive shopping to entrepreneurship mentorship—all in one place.</p>
-                <a href="#pricing" class="btn btn-primary">Start Your Journey</a>
+                <p class="delay-1">Discover a ecosystem designed for your growth. From premium events and exclusive shopping to entrepreneurship mentorship—all in one place.</p>
+                <a href="#pricing" class="btn btn-primary delay-2">Start Your Journey</a>
             </div>
         </div>
     </header>
@@ -306,5 +394,38 @@
             <p>Empowering Nigerian Women, One Step at a Time.</p>
         </div>
     </footer>
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu on link click
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Scroll Reveal Animation (Intersection Observer)
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.pillar-card, .price-card, .section-title').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
