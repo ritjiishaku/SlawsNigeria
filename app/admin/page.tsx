@@ -2,34 +2,31 @@
 
 import { useState, useEffect } from 'react'
 
-interface Service {
+interface Post {
+  id: string
+  title: string
+  content: string
+  created_at: string
+}
+
+interface User {
   id: string
   name: string
-  category: string
-  description: string
-  price: number
-  whatsapp_link: string
+  phone: string
+  interest: string
+  created_at: string
 }
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
-  const [services, setServices] = useState<Service[]>([])
-  const [newService, setNewService] = useState({
-    name: '',
-    category: 'events',
-    description: '',
-    price: 0,
-    whatsapp_link: '',
-  })
-  const [broadcastMessage, setBroadcastMessage] = useState('')
-  const [scheduledDate, setScheduledDate] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [analytics, setAnalytics] = useState<any>(null)
+  const [posts, setPosts] = useState<Post[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [newPost, setNewPost] = useState({ title: '', content: '' })
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'posts' | 'users'>('posts')
 
   useEffect(() => {
-    // Check if already authenticated (session storage)
     const auth = sessionStorage.getItem('admin_auth')
     if (auth === 'true') {
       setIsAuthenticated(true)
@@ -38,32 +35,31 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchServices()
-      fetchAnalytics()
+      fetchPosts()
+      fetchUsers()
     }
   }, [isAuthenticated])
 
-  const fetchServices = async () => {
-    const res = await fetch('/api/services')
+  const fetchPosts = async () => {
+    const res = await fetch('/api/posts')
     const data = await res.json()
-    setServices(data.services || [])
+    setPosts(data.posts || [])
   }
 
-  const fetchAnalytics = async () => {
+  const fetchUsers = async () => {
     const auth = sessionStorage.getItem('admin_password') || ''
-    const res = await fetch(`/api/analytics?password=${auth}`)
+    const res = await fetch(`/api/users?password=${auth}`)
     const data = await res.json()
-    setAnalytics(data)
+    setUsers(data.users || [])
   }
 
   const handleLogin = () => {
-    // Simple client-side check - password sent to server for API calls
-    if (password.length > 0) {
+    if (password === 'slaws2026') {
       sessionStorage.setItem('admin_auth', 'true')
       sessionStorage.setItem('admin_password', password)
       setIsAuthenticated(true)
     } else {
-      alert('Please enter password')
+      alert('Wrong password')
     }
   }
 
@@ -74,70 +70,22 @@ export default function AdminPage() {
     setPassword('')
   }
 
-  const addService = async (e: React.FormEvent) => {
+  const addPost = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     const auth = sessionStorage.getItem('admin_password') || ''
 
-    const res = await fetch('/api/services', {
+    const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: auth, ...newService }),
+      body: JSON.stringify({ password: auth, ...newPost }),
     })
 
     if (res.ok) {
-      setNewService({ name: '', category: 'events', description: '', price: 0, whatsapp_link: '' })
-      fetchServices()
+      setNewPost({ title: '', content: '' })
+      fetchPosts()
     }
     setLoading(false)
-  }
-
-  const deleteService = async (id: string) => {
-    const auth = sessionStorage.getItem('admin_password') || ''
-    const res = await fetch(`/api/services?id=${id}&password=${auth}`, {
-      method: 'DELETE',
-    })
-    if (res.ok) fetchServices()
-  }
-
-  const sendBroadcast = async (scheduleDate?: string) => {
-    if (!broadcastMessage) return
-    setLoading(true)
-    const auth = sessionStorage.getItem('admin_password') || ''
-
-    const endpoint = scheduleDate ? '/api/scheduled-broadcasts' : '/api/broadcast'
-    const body: any = { 
-      password: auth, 
-      message: broadcastMessage,
-    }
-
-    if (scheduleDate) {
-      body.scheduled_for = scheduleDate
-      body.tags = selectedTags.length > 0 ? selectedTags : null
-    } else {
-      body.tags = selectedTags.length > 0 ? selectedTags : null
-    }
-
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-
-    if (res.ok) {
-      alert(scheduleDate ? 'Broadcast scheduled!' : 'Broadcast sent!')
-      setBroadcastMessage('')
-      setScheduledDate('')
-      setSelectedTags([])
-      fetchAnalytics()
-    }
-    setLoading(false)
-  }
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    )
   }
 
   if (!isAuthenticated) {
@@ -169,165 +117,100 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#6B21A8]">SlawsNigeria Admin</h1>
-          <button
-            onClick={handleLogout}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            Logout
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`px-4 py-2 rounded-md ${activeTab === 'posts' ? 'bg-[#6B21A8] text-white' : 'bg-gray-200'}`}
+            >
+              Posts ({posts.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-4 py-2 rounded-md ${activeTab === 'users' ? 'bg-[#6B21A8] text-white' : 'bg-gray-200'}`}
+            >
+              Users ({users.length})
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
-        {/* Analytics Cards */}
-        {analytics && (
-          <div className="grid grid-cols-4 gap-4 mb-8">
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <p className="text-sm text-gray-600">Total Subscribers</p>
-              <p className="text-2xl font-bold text-[#6B21A8]">{analytics.totalSubscribers}</p>
+        {activeTab === 'posts' ? (
+          <>
+            {/* Add Post Form */}
+            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+              <h2 className="text-xl font-semibold mb-4">Add New Post</h2>
+              <form onSubmit={addPost} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Post Title"
+                  value={newPost.title}
+                  onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                  className="w-full border px-4 py-2 rounded-md"
+                  required
+                />
+                <textarea
+                  placeholder="Post Content (use \n for new lines)"
+                  value={newPost.content}
+                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                  className="w-full border px-4 py-2 rounded-md"
+                  rows={4}
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-[#6B21A8] text-white px-6 py-2 rounded-md hover:bg-[#4C1D95] disabled:opacity-50"
+                >
+                  {loading ? 'Adding...' : 'Add Post'}
+                </button>
+              </form>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <p className="text-sm text-gray-600">Total Services</p>
-              <p className="text-2xl font-bold text-[#6B21A8]">{analytics.totalServices}</p>
+
+            {/* Posts List */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold mb-4">All Posts</h2>
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <div key={post.id} className="border p-4 rounded-md">
+                    <h3 className="font-semibold text-[#6B21A8]">{post.title}</h3>
+                    <p className="text-sm text-gray-600 whitespace-pre-wrap mt-2">{post.content}</p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      {new Date(post.created_at).toLocaleDateString('en-NG')}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <p className="text-sm text-gray-600">Pending Broadcasts</p>
-              <p className="text-2xl font-bold text-[#D97706]">{analytics.pendingBroadcasts}</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <p className="text-sm text-gray-600">Top Interest</p>
-              <p className="text-2xl font-bold text-[#6B21A8]">
-                {analytics.tagCounts ? Object.entries(analytics.tagCounts).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A' : 'N/A'}
-              </p>
+          </>
+        ) : (
+          /* Users List */
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Leads Captured ({users.length})</h2>
+            <div className="space-y-4">
+              {users.map((user) => (
+                <div key={user.id} className="border p-4 rounded-md flex justify-between items-center">
+                  <div>
+                    <h3 className="font-semibold">{user.name}</h3>
+                    <p className="text-sm text-gray-600">{user.phone} • {user.interest}</p>
+                  </div>
+                  <a
+                    href={`https://wa.me/${user.phone}?text=Hello%20${user.name}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#6B21A8] hover:underline text-sm"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         )}
-
-        {/* Add Service Form */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-xl font-semibold mb-4">Add New Service</h2>
-          <form onSubmit={addService} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Service Name"
-              value={newService.name}
-              onChange={(e) => setNewService({ ...newService, name: e.target.value })}
-              className="w-full border px-4 py-2 rounded-md"
-              required
-            />
-            <select
-              value={newService.category}
-              onChange={(e) => setNewService({ ...newService, category: e.target.value })}
-              className="w-full border px-4 py-2 rounded-md"
-            >
-              <option value="events">Events</option>
-              <option value="products">Products</option>
-              <option value="mentorship">Mentorship</option>
-            </select>
-            <textarea
-              placeholder="Description"
-              value={newService.description}
-              onChange={(e) => setNewService({ ...newService, description: e.target.value })}
-              className="w-full border px-4 py-2 rounded-md"
-              rows={3}
-            />
-            <input
-              type="number"
-              placeholder="Price (₦)"
-              value={newService.price}
-              onChange={(e) => setNewService({ ...newService, price: Number(e.target.value) })}
-              className="w-full border px-4 py-2 rounded-md"
-            />
-            <input
-              type="text"
-              placeholder="WhatsApp Link"
-              value={newService.whatsapp_link}
-              onChange={(e) => setNewService({ ...newService, whatsapp_link: e.target.value })}
-              className="w-full border px-4 py-2 rounded-md"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-[#6B21A8] text-white px-6 py-2 rounded-md hover:bg-[#4C1D95] disabled:opacity-50"
-            >
-              {loading ? 'Adding...' : 'Add Service'}
-            </button>
-          </form>
-        </div>
-
-        {/* Services List */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-xl font-semibold mb-4">Current Services</h2>
-          <div className="space-y-4">
-            {services.map((service) => (
-              <div key={service.id} className="border p-4 rounded-md flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold">{service.name}</h3>
-                  <p className="text-sm text-gray-600">{service.category} • ₦{service.price}</p>
-                </div>
-                <button
-                  onClick={() => deleteService(service.id)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Broadcast Composer */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Send Broadcast</h2>
-          
-          <p className="text-sm text-gray-600 mb-2">Target audience (leave empty for all):</p>
-          <div className="flex gap-2 mb-4 flex-wrap">
-            {['events', 'products', 'mentorship', 'general'].map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleTag(tag)}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  selectedTags.includes(tag)
-                    ? 'bg-[#6B21A8] text-white'
-                    : 'bg-gray-200 text-[#374151]'
-                }`}
-              >
-                {tag.charAt(0).toUpperCase() + tag.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          <textarea
-            placeholder="Type your broadcast message..."
-            value={broadcastMessage}
-            onChange={(e) => setBroadcastMessage(e.target.value)}
-            className="w-full border px-4 py-2 rounded-md mb-4"
-            rows={4}
-          />
-          
-          <div className="flex gap-4">
-            <button
-              onClick={() => sendBroadcast()}
-              disabled={loading || !broadcastMessage}
-              className="bg-[#D97706] text-white px-6 py-2 rounded-md hover:bg-[#B45309] disabled:opacity-50"
-            >
-              {loading ? 'Sending...' : 'Send Now'}
-            </button>
-            
-            <input
-              type="datetime-local"
-              value={scheduledDate}
-              onChange={(e) => setScheduledDate(e.target.value)}
-              className="border px-4 py-2 rounded-md"
-            />
-            <button
-              onClick={() => sendBroadcast(scheduledDate)}
-              disabled={loading || !broadcastMessage || !scheduledDate}
-              className="bg-[#6B21A8] text-white px-6 py-2 rounded-md hover:bg-[#4C1D95] disabled:opacity-50"
-            >
-              Schedule
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   )
