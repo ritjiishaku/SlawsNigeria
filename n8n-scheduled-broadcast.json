@@ -1,0 +1,136 @@
+{
+  "name": "SlawsNigeria - Process Scheduled Broadcasts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "expression": "1"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every 1 Minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.NEXT_PUBLIC_SITE_URL }}/api/scheduled-broadcasts?password={{ $env.ADMIN_PASSWORD }}",
+        "authentication": "genericCustomAuth",
+        "genericAuthType": "header",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.ADMIN_PASSWORD }}"
+            }
+          ]
+        }
+      },
+      "id": "get-scheduled",
+      "name": "Get Pending Broadcasts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.broadcasts.length > 0 }}",
+              "operation": "true"
+            }
+          ]
+        }
+      },
+      "id": "check-pending",
+      "name": "Has Pending Broadcasts?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://live-mt-server.wati.io/' + $env.WATI_PHONE_NUMBER + '/api/v1/sendSessionMessage?whatsappNumber=' + $json.phone }}",
+        "method": "POST",
+        "authentication": "genericCustomAuth",
+        "genericAuthType": "header",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.WATI_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
+          ]
+        }
+      },
+      "id": "send-wati",
+      "name": "Send via Wati",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.NEXT_PUBLIC_SITE_URL }}/api/broadcast",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "password",
+              "value": "={{ $env.ADMIN_PASSWORD }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $json.tags }}"
+            }
+          ]
+        }
+      },
+      "id": "trigger-broadcast",
+      "name": "Trigger Broadcast API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Every 1 Minute": {
+      "main": [[{"node": "Get Pending Broadcasts", "type": "main", "index": 0}]]
+    },
+    "Get Pending Broadcasts": {
+      "main": [[{"node": "Has Pending Broadcasts?", "type": "main", "index": 0}]]
+    },
+    "Has Pending Broadcasts?": {
+      "main": [
+        [{"node": "Trigger Broadcast API", "type": "main", "index": 0}],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": ["slaws", "scheduled", "broadcast"]
+}

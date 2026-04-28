@@ -9,7 +9,6 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'SlawsNigeria - Automation & Growth Engine',
   description: 'Empowering Nigerian women through Events, Products, and Mentorship. Subscribe on WhatsApp for daily updates.',
-  themeColor: '#6B21A8',
 }
 
 export default function RootLayout({
