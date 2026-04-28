@@ -1,9 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-
-const ADMIN_PASSWORD = 'slaws2026'
 
 interface Service {
   id: string
@@ -32,8 +29,12 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (isAuthenticated) fetchAnalytics()
-  }, [isAuthenticated])
+    // Check if already authenticated (session storage)
+    const auth = sessionStorage.getItem('admin_auth')
+    if (auth === 'true') {
+      setIsAuthenticated(true)
+    }
+  }, [])
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -42,34 +43,46 @@ export default function AdminPage() {
     }
   }, [isAuthenticated])
 
-  const fetchAnalytics = async () => {
-    const res = await fetch(`/api/analytics?password=${ADMIN_PASSWORD}`)
-    const data = await res.json()
-    setAnalytics(data)
-  }
-
   const fetchServices = async () => {
     const res = await fetch('/api/services')
     const data = await res.json()
     setServices(data.services || [])
   }
 
+  const fetchAnalytics = async () => {
+    const auth = sessionStorage.getItem('admin_password') || ''
+    const res = await fetch(`/api/analytics?password=${auth}`)
+    const data = await res.json()
+    setAnalytics(data)
+  }
+
   const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
+    // Simple client-side check - password sent to server for API calls
+    if (password.length > 0) {
+      sessionStorage.setItem('admin_auth', 'true')
+      sessionStorage.setItem('admin_password', password)
       setIsAuthenticated(true)
     } else {
-      alert('Wrong password')
+      alert('Please enter password')
     }
+  }
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_auth')
+    sessionStorage.removeItem('admin_password')
+    setIsAuthenticated(false)
+    setPassword('')
   }
 
   const addService = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    const auth = sessionStorage.getItem('admin_password') || ''
 
     const res = await fetch('/api/services', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: ADMIN_PASSWORD, ...newService }),
+      body: JSON.stringify({ password: auth, ...newService }),
     })
 
     if (res.ok) {
@@ -80,7 +93,8 @@ export default function AdminPage() {
   }
 
   const deleteService = async (id: string) => {
-    const res = await fetch(`/api/services?id=${id}&password=${ADMIN_PASSWORD}`, {
+    const auth = sessionStorage.getItem('admin_password') || ''
+    const res = await fetch(`/api/services?id=${id}&password=${auth}`, {
       method: 'DELETE',
     })
     if (res.ok) fetchServices()
@@ -89,10 +103,11 @@ export default function AdminPage() {
   const sendBroadcast = async (scheduleDate?: string) => {
     if (!broadcastMessage) return
     setLoading(true)
+    const auth = sessionStorage.getItem('admin_password') || ''
 
     const endpoint = scheduleDate ? '/api/scheduled-broadcasts' : '/api/broadcast'
     const body: any = { 
-      password: ADMIN_PASSWORD, 
+      password: auth, 
       message: broadcastMessage,
     }
 
@@ -152,7 +167,15 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-[#6B21A8]">SlawsNigeria Admin</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-[#6B21A8]">SlawsNigeria Admin</h1>
+          <button
+            onClick={handleLogout}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            Logout
+          </button>
+        </div>
 
         {/* Analytics Cards */}
         {analytics && (
@@ -252,10 +275,9 @@ export default function AdminPage() {
         </div>
 
         {/* Broadcast Composer */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Send Broadcast</h2>
           
-          {/* Tag Filter */}
           <p className="text-sm text-gray-600 mb-2">Target audience (leave empty for all):</p>
           <div className="flex gap-2 mb-4 flex-wrap">
             {['events', 'products', 'mentorship', 'general'].map((tag) => (
