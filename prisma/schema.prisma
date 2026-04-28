@@ -2,12 +2,13 @@
 // Note: Using SQLite for local development. Switch to PostgreSQL for production.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // User Schema - AGENTS.md Section 6
@@ -61,8 +62,8 @@ model ProductService {
   currency     String    @default("NGN") // Never display foreign currency
   availability Availability
   access_level AccessLevel
-  media_urls   String    // JSON string for SQLite: '["url1","url2"]'
-  tags         String    // JSON string for SQLite: '["tag1","tag2"]'
+  media_urls   String[]
+  tags         String[]
   created_at   DateTime  @default(now())
   updated_at   DateTime  @updatedAt
 
@@ -95,7 +96,7 @@ model Volunteer {
   user_id         String      @unique
   user            User        @relation(fields: [user_id], references: [id])
   role            VolunteerRole
-  skills          String      // JSON string for SQLite: '["skill1","skill2"]'
+  skills          String[]
   availability    AvailabilityType
   status          VolunteerStatus @default(applied)
   agreement_signed Boolean   @default(false) // Must be true before status → active

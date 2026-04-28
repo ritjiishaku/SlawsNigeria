@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/api/server.js",
     "dev": "ts-node -r dotenv/config src/api/server.ts",
     "test": "jest"
